@@ -1,21 +1,11 @@
-/* variable "security_group_id" {
-	description = "BDEC Processing SG id"
-}
 
-variable "vpc_id" {
-	description = "BDEC VPC"
-}
-
-variable "environment" {
-	default = "test"
-}
-
-*/
-
-variable "region" {
+variable "aws_region" {
 	default = "eu-west-2"
 }
 
-variable "key_name" {
-	default = "hmrc_id_rsa"
+variable "aws_amis" {
+  default = {
+    eu-west-1 = "ami-785db401"
+    eu-west-2 = "ami-996372fd"
+  }
 }
