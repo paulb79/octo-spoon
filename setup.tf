@@ -47,23 +47,21 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_key_pair" "developer" {
-  key_name      = "developer-key"
-  public_key    = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDa/GfQsHjgN9LtG84j4O5BgfoERvNtt8fIrwanEDP8LndnSrENucnthPZ0cKdXc51GF76oCbGSGDdFQGZwMtxgkyuObO0406HK5Yx2SmjgsqGCznUyHhArIas/rgjSFdvanWt9lJGjzN9JguEfp90ZVVKG/IHiiHSux2wnD2rJl8FIJ+J9LIH81aSzlm9Yvyxu8Og03oycGVvom2Z2bqtiNzWCJAQVeDnF/fqM0gMorhLXifpyPkkq1pPYNcTnI7pOaWbJWLafCA92+Q1IbrQH4iRCD1NxbZtNMcjO6fqSq7BNzEjbdNk8XzXdbZCFGiRX2I8iOgDexFGts9dKVGj7 pbrown@equalexperts.com"
+  key_name      = "${var.key_name}"
+  public_key    = "${file(var.public_key_path)}"
 }
 
 resource "aws_instance" "devserver" {
   ami           = "${lookup(var.aws_amis, var.aws_region)}"
   instance_type = "t2.micro"
-  
-  connection {
-    user = "developer"
-  }
 
   key_name                = "${aws_key_pair.developer.id}"
   vpc_security_group_ids  = ["${aws_security_group.default.id}"]
   subnet_id               = "${aws_subnet.default.id}"
 
-  # ToDo now provision on the instance the kit we need
+  # ToDo 1. now provision on the instance the kit we need
+  # ToDo 2. now provision EMR
+  # ToDo 3. connect to s3 buckets
 
 }
 
