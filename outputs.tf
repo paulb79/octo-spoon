@@ -1,3 +1,3 @@
 output "address" {
-  value = "${aws_instance.bdec.dns_name}"
+  value = "${aws_instance.devserver.dns_name}"
 }
