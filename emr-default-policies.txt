@@ -1,6 +1,10 @@
+emr =
+    service_role = EMR_DefaultRole
+    instance_profile = EMR_EC2_DefaultRole
 
 
-# EMR Default Role Policy
+
+# EMR Default Role Policy (service role)
 {
     "Version": "2012-10-17",
     "Statement": [{
@@ -91,7 +95,7 @@
   ]
 }
 
-# EMR Instance Role Policy 
+# EMR Instance Role Policy (instance_profile)
 {
     "Version": "2012-10-17",
     "Statement": [{

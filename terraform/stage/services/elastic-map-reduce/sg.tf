@@ -4,7 +4,7 @@
 
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
-  description = "Allow ssh inbound traffic"
+  description = "ssh inbound traffic"
   vpc_id      = "${aws_vpc.main.id}"
 
   ingress {
@@ -22,10 +22,6 @@ resource "aws_security_group" "allow_ssh" {
   }
 
   depends_on = ["aws_subnet.main"]
-
-  lifecycle {
-    ignore_changes = ["ingress", "egress"]
-  }
 
   tags {
     name = "emr_test"
