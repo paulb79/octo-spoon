@@ -63,6 +63,10 @@ resource "aws_instance" "devserver" {
   # ToDo 2. now provision EMR
   # ToDo 3. connect to s3 buckets
 
+  tags {
+    name      = "octo-dev-server"
+  }
+
 }
 
 

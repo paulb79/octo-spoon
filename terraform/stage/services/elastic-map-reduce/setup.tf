@@ -5,7 +5,7 @@ provider "aws" {
   profile  = "redjamjar"
 }
 
-resource "aws_emr_cluster" "emr-rnd-cluster" {
+resource "aws_emr_cluster" "emr-spark-cluster" {
   name          = "Spark-Cluster"
   release_label = "emr-5.8.0"
   applications  = ["Spark"]
@@ -16,9 +16,10 @@ resource "aws_emr_cluster" "emr-rnd-cluster" {
   log_uri = "s3://octo-cluster-logs/stage/poc/"
 
   ec2_attributes {
+    key_name                          = "developer"
     subnet_id                         = "${aws_subnet.main.id}"
-    emr_managed_master_security_group = "${aws_security_group.sg.id}"
-    emr_managed_slave_security_group  = "${aws_security_group.sg.id}"
+    emr_managed_master_security_group = "${aws_security_group.allow_ssh.id}"
+    emr_managed_slave_security_group  = "${aws_security_group.allow_ssh.id}"
     instance_profile                  = "${aws_iam_instance_profile.emr_profile.arn}"
   }
 
@@ -37,39 +38,25 @@ resource "aws_emr_cluster" "emr-rnd-cluster" {
     args = ["instance.isMaster=true", "echo running on master node"]
   }
 
-  service_role = "${aws_iam_role.iam_emr_service_role.arn}"
+  service_role = "${aws_iam_role.emr_service_role.arn}"
 }
 
 ###
-
 # IAM Role setups
-
 ###
 
 # IAM role for EMR Service
-data "aws_iam_policy_document" "emr_service_policy" {  
-    statement {
-        effect = "Allow"
-        actions = [
-            "sts:AssumeRole",
-        ]
-        principals {
-            type = "Service"
-            identifiers = ["elasticmapreduce.amazonaws.com"]
-        }
-    }
-}
+resource "aws_iam_role_policy" "iam_emr_service_policy" {
+  name = "iam_emr_service_policy"
+  role = "${aws_iam_role.emr_service_role.id}"
 
-resource "aws_iam_role" "iam_emr_service_role" {
-  name = "iam_emr_service_role"
-
-  assume_role_policy = "${data.aws_iam_policy_document.emr_service_policy.json}"
-}
-
-data "aws_iam_policy_document" "iam_emr_service_policy" {  
-    statement {
-        effect = "Allow"
-        actions = [
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+      "Effect": "Allow",
+      "Resource": "*",
+      "Action": [
           "ec2:AuthorizeSecurityGroupEgress",
           "ec2:AuthorizeSecurityGroupIngress",
           "ec2:CancelSpotInstanceRequests",
@@ -82,6 +69,7 @@ data "aws_iam_policy_document" "iam_emr_service_policy" {
           "ec2:DescribeAvailabilityZones",
           "ec2:DescribeAccountAttributes",
           "ec2:DescribeDhcpOptions",
+          "ec2:DescribeImages",
           "ec2:DescribeInstanceStatus",
           "ec2:DescribeInstances",
           "ec2:DescribeKeyPairs",
@@ -93,6 +81,7 @@ data "aws_iam_policy_document" "iam_emr_service_policy" {
           "ec2:DescribeSpotInstanceRequests",
           "ec2:DescribeSpotPriceHistory",
           "ec2:DescribeSubnets",
+          "ec2:DescribeTags",
           "ec2:DescribeVpcAttribute",
           "ec2:DescribeVpcEndpoints",
           "ec2:DescribeVpcEndpointServices",
@@ -122,78 +111,127 @@ data "aws_iam_policy_document" "iam_emr_service_policy" {
           "sqs:Delete*",
           "sqs:GetQueue*",
           "sqs:PurgeQueue",
-          "sqs:ReceiveMessage"
-        ]
-        
+          "sqs:ReceiveMessage",
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DescribeAlarms",
+          "cloudwatch:DeleteAlarms",
+          "application-autoscaling:RegisterScalableTarget",
+          "application-autoscaling:DeregisterScalableTarget",
+          "application-autoscaling:PutScalingPolicy",
+          "application-autoscaling:DeleteScalingPolicy",
+          "application-autoscaling:Describe*"
+      ]
+  }]
+}
+EOF
+}
+
+resource "aws_iam_role" "emr_service_role" {
+  name = "emr_service_role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "elasticmapreduce.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
     }
+  ]
+}
+EOF
 }
 
-resource "aws_iam_role_policy" "iam_emr_service_policy" {
-  name = "iam_emr_service_policy"
-  role = "${aws_iam_role.iam_emr_service_role.id}"
 
-  policy = "${data.aws_iam_policy_document.iam_emr_service_policy.json}"
-}
-
-# IAM Role for EC2 Instance Profile
-
-data "aws_iam_policy_document" "assume_role" {  
-    statement {
-        effect = "Allow"
-        actions = [
-            "sts:AssumeRole",
-        ]
-        principals {
-            type = "Service"
-            identifiers = ["ec2.amazonaws.com"]
-        }
-    }
-}
-
+# IAM Role for EC2 Instances
 resource "aws_iam_role" "iam_emr_profile_role" {
   name = "iam_emr_profile_role"
 
-  assume_role_policy = "${data.aws_iam_policy_document.assume_role.json}"
+  assume_role_policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
 }
 
 resource "aws_iam_instance_profile" "emr_profile" {
   name  = "emr_profile"
-  role  = "${aws_iam_role.iam_emr_profile_role.id}"
-}
-
-data "aws_iam_policy_document" "emr_policy" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "cloudwatch:*",
-      "dynamodb:*",
-      "ec2:Describe*",
-      "elasticmapreduce:Describe*",
-      "elasticmapreduce:ListBootstrapActions",
-      "elasticmapreduce:ListClusters",
-      "elasticmapreduce:ListInstanceGroups",
-      "elasticmapreduce:ListInstances",
-      "elasticmapreduce:ListSteps",
-      "kinesis:CreateStream",
-      "kinesis:DeleteStream",
-      "kinesis:DescribeStream",
-      "kinesis:GetRecords",
-      "kinesis:GetShardIterator",
-      "kinesis:MergeShards",
-      "kinesis:PutRecord",
-      "kinesis:SplitShard",
-      "rds:Describe*",
-      "s3:*",
-      "sdb:*",
-      "sns:*",
-      "sqs:*"
-    ]
-  }
+  role = "${aws_iam_role.iam_emr_profile_role.name}"
 }
 
 resource "aws_iam_role_policy" "iam_emr_profile_policy" {
   name = "iam_emr_profile_policy"
   role = "${aws_iam_role.iam_emr_profile_role.id}"
 
-  policy = "${data.aws_iam_policy_document.emr_policy.json}"
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Resource": "*",
+        "Action": [
+            "cloudwatch:*",
+            "dynamodb:*",
+            "ec2:Describe*",
+            "elasticmapreduce:Describe*",
+            "elasticmapreduce:ListBootstrapActions",
+            "elasticmapreduce:ListClusters",
+            "elasticmapreduce:ListInstanceGroups",
+            "elasticmapreduce:ListInstances",
+            "elasticmapreduce:ListSteps",
+            "kinesis:CreateStream",
+            "kinesis:DeleteStream",
+            "kinesis:DescribeStream",
+            "kinesis:GetRecords",
+            "kinesis:GetShardIterator",
+            "kinesis:MergeShards",
+            "kinesis:PutRecord",
+            "kinesis:SplitShard",
+            "rds:Describe*",
+            "s3:*",
+            "sdb:*",
+            "sns:*",
+            "sqs:*",
+            "glue:CreateDatabase",
+            "glue:UpdateDatabase",
+            "glue:DeleteDatabase",
+            "glue:GetDatabase",
+            "glue:GetDatabases",
+            "glue:CreateTable",
+            "glue:UpdateTable",
+            "glue:DeleteTable",
+            "glue:GetTable",
+            "glue:GetTables",
+            "glue:GetTableVersions",
+            "glue:CreatePartition",
+            "glue:BatchCreatePartition",
+            "glue:UpdatePartition",
+            "glue:DeletePartition",
+            "glue:BatchDeletePartition",
+            "glue:GetPartition",
+            "glue:GetPartitions",
+            "glue:BatchGetPartition",
+            "glue:CreateUserDefinedFunction",
+            "glue:UpdateUserDefinedFunction",
+            "glue:DeleteUserDefinedFunction",
+            "glue:GetUserDefinedFunction",
+            "glue:GetUserDefinedFunctions"
+        ]
+    }]
+}
+EOF
 }
