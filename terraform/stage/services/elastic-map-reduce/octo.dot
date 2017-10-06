@@ -1,0 +1,68 @@
+digraph {
+	compound = "true"
+	newrank = "true"
+	subgraph "root" {
+		"[root] aws_emr_cluster.emr-spark-cluster" [label = "aws_emr_cluster.emr-spark-cluster", shape = "box"]
+		"[root] aws_iam_instance_profile.emr_profile" [label = "aws_iam_instance_profile.emr_profile", shape = "box"]
+		"[root] aws_iam_role.emr_service_role" [label = "aws_iam_role.emr_service_role", shape = "box"]
+		"[root] aws_iam_role.iam_emr_profile_role" [label = "aws_iam_role.iam_emr_profile_role", shape = "box"]
+		"[root] aws_iam_role_policy.iam_emr_profile_policy" [label = "aws_iam_role_policy.iam_emr_profile_policy", shape = "box"]
+		"[root] aws_iam_role_policy.iam_emr_service_policy" [label = "aws_iam_role_policy.iam_emr_service_policy", shape = "box"]
+		"[root] aws_internet_gateway.gw" [label = "aws_internet_gateway.gw", shape = "box"]
+		"[root] aws_main_route_table_association.a" [label = "aws_main_route_table_association.a", shape = "box"]
+		"[root] aws_route_table.m" [label = "aws_route_table.m", shape = "box"]
+		"[root] aws_route_table.p" [label = "aws_route_table.p", shape = "box"]
+		"[root] aws_route_table.r" [label = "aws_route_table.r", shape = "box"]
+		"[root] aws_route_table_association.p" [label = "aws_route_table_association.p", shape = "box"]
+		"[root] aws_route_table_association.r" [label = "aws_route_table_association.r", shape = "box"]
+		"[root] aws_security_group.allow_ssh" [label = "aws_security_group.allow_ssh", shape = "box"]
+		"[root] aws_subnet.main" [label = "aws_subnet.main", shape = "box"]
+		"[root] aws_subnet.public" [label = "aws_subnet.public", shape = "box"]
+		"[root] aws_vpc.main" [label = "aws_vpc.main", shape = "box"]
+		"[root] provider.aws" [label = "provider.aws", shape = "diamond"]
+		"[root] aws_emr_cluster.emr-spark-cluster" -> "[root] aws_iam_instance_profile.emr_profile"
+		"[root] aws_emr_cluster.emr-spark-cluster" -> "[root] aws_iam_role.emr_service_role"
+		"[root] aws_emr_cluster.emr-spark-cluster" -> "[root] aws_security_group.allow_ssh"
+		"[root] aws_iam_instance_profile.emr_profile" -> "[root] aws_iam_role.iam_emr_profile_role"
+		"[root] aws_iam_role.emr_service_role" -> "[root] provider.aws"
+		"[root] aws_iam_role.iam_emr_profile_role" -> "[root] provider.aws"
+		"[root] aws_iam_role_policy.iam_emr_profile_policy" -> "[root] aws_iam_role.iam_emr_profile_role"
+		"[root] aws_iam_role_policy.iam_emr_service_policy" -> "[root] aws_iam_role.emr_service_role"
+		"[root] aws_internet_gateway.gw" -> "[root] aws_vpc.main"
+		"[root] aws_main_route_table_association.a" -> "[root] aws_route_table.m"
+		"[root] aws_route_table.m" -> "[root] aws_vpc.main"
+		"[root] aws_route_table.m" -> "[root] var.project_name"
+		"[root] aws_route_table.p" -> "[root] aws_vpc.main"
+		"[root] aws_route_table.p" -> "[root] var.project_name"
+		"[root] aws_route_table.r" -> "[root] aws_internet_gateway.gw"
+		"[root] aws_route_table.r" -> "[root] var.project_name"
+		"[root] aws_route_table_association.p" -> "[root] aws_route_table.p"
+		"[root] aws_route_table_association.p" -> "[root] aws_subnet.public"
+		"[root] aws_route_table_association.r" -> "[root] aws_route_table.r"
+		"[root] aws_route_table_association.r" -> "[root] aws_subnet.main"
+		"[root] aws_security_group.allow_ssh" -> "[root] aws_subnet.main"
+		"[root] aws_subnet.main" -> "[root] aws_vpc.main"
+		"[root] aws_subnet.main" -> "[root] var.project_name"
+		"[root] aws_subnet.public" -> "[root] aws_vpc.main"
+		"[root] aws_subnet.public" -> "[root] var.project_name"
+		"[root] aws_vpc.main" -> "[root] provider.aws"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] aws_emr_cluster.emr-spark-cluster"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] aws_iam_role_policy.iam_emr_profile_policy"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] aws_iam_role_policy.iam_emr_service_policy"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] aws_main_route_table_association.a"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] aws_route_table_association.p"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] aws_route_table_association.r"
+		"[root] meta.count-boundary (count boundary fixup)" -> "[root] var.key_name"
+		"[root] provider.aws (close)" -> "[root] aws_emr_cluster.emr-spark-cluster"
+		"[root] provider.aws (close)" -> "[root] aws_iam_role_policy.iam_emr_profile_policy"
+		"[root] provider.aws (close)" -> "[root] aws_iam_role_policy.iam_emr_service_policy"
+		"[root] provider.aws (close)" -> "[root] aws_main_route_table_association.a"
+		"[root] provider.aws (close)" -> "[root] aws_route_table_association.p"
+		"[root] provider.aws (close)" -> "[root] aws_route_table_association.r"
+		"[root] provider.aws" -> "[root] var.aws_region"
+		"[root] provider.aws" -> "[root] var.profile"
+		"[root] root" -> "[root] meta.count-boundary (count boundary fixup)"
+		"[root] root" -> "[root] provider.aws (close)"
+	}
+}
+

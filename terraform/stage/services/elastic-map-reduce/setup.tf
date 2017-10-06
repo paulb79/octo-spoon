@@ -1,8 +1,8 @@
 /* AWS Elastic Map Reduce */
 
 provider "aws" {
-  region     = "${var.aws_region}"
-  profile  = "redjamjar"
+  region   = "${var.aws_region}"
+  profile  = "${var.profile}"
 }
 
 resource "aws_emr_cluster" "emr-spark-cluster" {
@@ -30,12 +30,6 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
   tags {
     role     = "research"
     env      = "octo"
-  }
-
-  bootstrap_action {
-    path = "s3://elasticmapreduce/bootstrap-actions/run-if"
-    name = "runif"
-    args = ["instance.isMaster=true", "echo running on master node"]
   }
 
   service_role = "${aws_iam_role.emr_service_role.arn}"
