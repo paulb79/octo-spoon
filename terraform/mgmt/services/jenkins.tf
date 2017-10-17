@@ -8,13 +8,9 @@ module "global" {
   source = "../../global"
 }
 
-variable "key_name" {
-  default = "Jenkins"
-}
-
 provider "aws" {
-  region   = "${var.aws_region}"
-  profile  = "${var.profile}"
+  region   = "${module.global.aws_region}"
+  profile  = "${module.global.profile}"
 }
 
 data "aws_ami" "octo" {
@@ -40,7 +36,7 @@ resource "aws_instance" "jenkins" {
   # ...
   ami               = "${data.aws_ami.octo.id}"
   instance_type     = "t2.medium"
-  key_name          = "${var.key_name}"
+  key_name          = "${module.global.key_name}"
   security_groups   = ["${module.global.jenkins_sg}"]
   subnet_id         = "${module.vpc.private_subnet}"
 
