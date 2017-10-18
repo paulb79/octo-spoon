@@ -29,24 +29,26 @@ data "aws_ami" "octo" {
   owners = ["105761026190"] # EE
 }
 
-
-
 # Create a web server
 resource "aws_instance" "jenkins" {
   # ...
-  ami               = "${data.aws_ami.octo.id}"
-  instance_type     = "t2.medium"
-  key_name          = "${module.global.key_name}"
-  
-  subnet_id         = "${module.vpc.private_subnet}"
-
-  vpc_security_group_ids = ["${module.vpc.jenkins_sg_id}"]
+  ami                     = "${data.aws_ami.octo.id}"
+  instance_type           = "t2.medium"
+  key_name                = "${module.global.key_name}"
+  subnet_id               = "${module.vpc.public_subnet}"
+  iam_instance_profile    = "${data.aws_iam_instance_profile.EC2_Terraform.name}"
+  vpc_security_group_ids  = ["${module.vpc.jenkins_sg_id}"]
 
   tags {
-    Name = "octo-jenkins-{{timestamp}}"
+    Name = "octo-jenkins-$${timestamp}"
   }
 }
 
 output "address" {
   value = "${aws_instance.jenkins.public_ip}"
 }
+
+data "aws_iam_instance_profile" "EC2_Terraform" {
+  name = "EC2_Terraform"
+}
+
