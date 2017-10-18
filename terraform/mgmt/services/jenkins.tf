@@ -37,8 +37,10 @@ resource "aws_instance" "jenkins" {
   ami               = "${data.aws_ami.octo.id}"
   instance_type     = "t2.medium"
   key_name          = "${module.global.key_name}"
-  security_groups   = ["${module.global.jenkins_sg}"]
+  
   subnet_id         = "${module.vpc.private_subnet}"
+
+  vpc_security_group_ids = ["${module.vpc.jenkins_sg_id}"]
 
   tags {
     Name = "octo-jenkins-{{timestamp}}"
