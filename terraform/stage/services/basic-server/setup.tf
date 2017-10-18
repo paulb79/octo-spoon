@@ -54,6 +54,7 @@ resource "aws_key_pair" "developer" {
 resource "aws_instance" "devserver" {
   ami           = "${lookup(var.aws_amis, var.aws_region)}"
   instance_type = "t2.micro"
+  
 
   key_name                = "${aws_key_pair.developer.id}"
   vpc_security_group_ids  = ["${aws_security_group.default.id}"]

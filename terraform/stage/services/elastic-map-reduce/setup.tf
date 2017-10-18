@@ -35,6 +35,8 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
   service_role = "${aws_iam_role.emr_service_role.arn}"
 }
 
+
+
 ###
 # IAM Role setups
 ###

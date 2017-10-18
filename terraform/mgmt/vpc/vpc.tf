@@ -1,15 +1,28 @@
-###
-# Setup EMR VPC and Network Access 
-###
+module "global" {
+  source = "../../global"
+}
 
-resource "aws_security_group" "allow_ssh" {
-  name        = "allow_ssh"
-  description = "ssh inbound traffic"
-  vpc_id      = "${aws_vpc.main.id}"
+resource "aws_security_group" "jenkins" {
+  name        = "octo-jenkins-sg"
+  description = "Jenkins and SSH traffic"
 
   ingress {
     from_port   = 22
     to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -21,11 +34,15 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  depends_on = ["aws_subnet.main"]
+  vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    Name = "${var.project_name} SG"
+    Name = "${module.global.project_name} SG"
   }
+}
+
+output jenkins_sg_id {
+  value = "${aws_security_group.jenkins.id}"
 }
 
 resource "aws_vpc" "main" {
@@ -33,7 +50,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "EMR Octo Test VPC"
+    Name = "${module.global.project_name} VPC"
   }
 }
 
@@ -42,21 +59,26 @@ resource "aws_subnet" "main" {
   cidr_block = "10.0.1.0/24"
 
   tags {
-    Name = "${var.project_name} Private SN"
+    Name = "${module.global.project_name} Private SN"
   }
 }
 
 resource "aws_subnet" "public" {
   vpc_id      = "${aws_vpc.main.id}"
   cidr_block  = "10.0.2.0/24"
+  map_public_ip_on_launch = true
 
   tags {
-    Name = "${var.project_name} Public SN"
+    Name = "${module.global.project_name} Public SN"
   } 
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${module.global.project_name} Gatweay"
+  }
 }
 
 resource "aws_route_table" "m" {
@@ -65,7 +87,7 @@ resource "aws_route_table" "m" {
   # Todo create a test to ensure no route exists in the default route table for the vpc to the internet
   
   tags {
-    Name = "${var.project_name} VPC Main RT"
+    Name = "${module.global.project_name} VPC Main RT"
   }
 }
 
@@ -79,15 +101,20 @@ resource "aws_route_table" "r" {
   }
   
   tags {
-    Name = "${var.project_name} Private RT"
+    Name = "${module.global.project_name} Private RT"
   }
 }
 
 resource "aws_route_table" "p" {
   vpc_id = "${aws_vpc.main.id}"
 
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.gw.id}"
+  }
+
   tags {
-    Name = "${var.project_name} Public RT"
+    Name = "${module.global.project_name} Public RT"
   }
 }
 
@@ -107,6 +134,14 @@ resource "aws_route_table_association" "p" {
   route_table_id = "${aws_route_table.p.id}"
 }
 
+
+output "private_subnet" {
+  value = "${aws_subnet.main.id}"
+}
+
+output "public_subnet" {
+  value = "${aws_subnet.public.id}"
+}
 ###
 # END Setup EMR VPC and Network Access 
 ###
