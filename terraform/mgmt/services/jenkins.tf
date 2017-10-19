@@ -40,12 +40,12 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids  = ["${module.vpc.jenkins_sg_id}"]
 
   tags {
-    Name = "octo-jenkins-$${timestamp}"
+    Name = "octo-jenkins-${timestamp}"
   }
 }
 
 output "address" {
-  value = "${aws_instance.jenkins.public_ip}"
+  value = "${aws_instance.jenkins.public_dns}"
 }
 
 data "aws_iam_instance_profile" "EC2_Terraform" {
