@@ -40,7 +40,7 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids  = ["${module.vpc.jenkins_sg_id}"]
 
   tags {
-    Name = "octo-jenkins-${timestamp}"
+    Name = "octo-jenkins-${timestamp()}"
   }
 }
 
