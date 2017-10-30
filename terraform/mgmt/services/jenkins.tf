@@ -49,6 +49,6 @@ output "address" {
 }
 
 data "aws_iam_instance_profile" "EC2_Terraform" {
-  name = "EC2_Terraform"
+  name = "EC2_Jenkins"
 }
 
