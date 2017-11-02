@@ -5,6 +5,69 @@ provider "aws" {
   profile  = "${var.profile}"
 }
 
+
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+
+  tags {
+    Name = "EMR VPC"
+  }
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = "${aws_vpc.main.id}"
+  cidr_block = "10.0.1.0/24"
+
+  tags {
+    Name = "EMR Private SN"
+  }
+}
+
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow-ssh-sg"
+  description = "EMR SSH traffic"
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  vpc_id = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "EMR SG"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = "${aws_vpc.main.id}"
+}
+
+resource "aws_route_table" "r" {
+  vpc_id = "${aws_vpc.main.id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.gw.id}"
+  }
+}
+
+resource "aws_main_route_table_association" "a" {
+  vpc_id         = "${aws_vpc.main.id}"
+  route_table_id = "${aws_route_table.r.id}"
+}
+
+
 resource "aws_emr_cluster" "emr-spark-cluster" {
   name          = "Spark-Cluster"
   release_label = "emr-5.8.0"
@@ -16,7 +79,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
   log_uri = "s3://octo-cluster-logs/stage/poc/"
 
   ec2_attributes {
-    key_name                          = "developer"
+    key_name                          = "${var.key_name}"
     subnet_id                         = "${aws_subnet.main.id}"
     emr_managed_master_security_group = "${aws_security_group.allow_ssh.id}"
     emr_managed_slave_security_group  = "${aws_security_group.allow_ssh.id}"
