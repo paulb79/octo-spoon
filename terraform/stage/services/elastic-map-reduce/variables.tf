@@ -2,13 +2,9 @@ variable "aws_region" {
 	default = "eu-west-2"
 }
 
-variable "key_name" {
-  default = "developer"
-}
+variable "key_name" {}
 
-variable "profile" {
-  default = "redjamjar"
-}
+variable "profile" {}
 
 variable "project_name" {
   default = "EMR Octo Test "
