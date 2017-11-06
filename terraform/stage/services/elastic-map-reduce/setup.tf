@@ -11,7 +11,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "EMR VPC"
+    Name = "${var.project_name} VPC"
   }
 }
 
@@ -20,13 +20,13 @@ resource "aws_subnet" "main" {
   cidr_block = "10.0.1.0/24"
 
   tags {
-    Name = "EMR Private SN"
+    Name = "${var.project_name} Private SN"
   }
 }
 
 resource "aws_security_group" "allow_ssh" {
   name        = "allow-ssh-sg"
-  description = "EMR SSH traffic"
+  description = "${var.project_name} SSH traffic"
 
   ingress {
     from_port   = 0
@@ -45,7 +45,7 @@ resource "aws_security_group" "allow_ssh" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    Name = "EMR SG"
+    Name = "${var.project_name} SG"
   }
 }
 
@@ -69,7 +69,7 @@ resource "aws_main_route_table_association" "a" {
 
 
 resource "aws_emr_cluster" "emr-spark-cluster" {
-  name          = "Spark-Cluster"
+  name          = "${var.project_name}"
   release_label = "emr-5.8.0"
   applications  = ["Spark"]
 

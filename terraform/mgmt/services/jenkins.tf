@@ -33,7 +33,7 @@ data "aws_ami" "octo" {
 resource "aws_instance" "jenkins" {
   # ...
   ami                     = "${data.aws_ami.octo.id}"
-  instance_type           = "t2.large"
+  instance_type           = "t2.medium"
   key_name                = "${module.global.key_name}"
   subnet_id               = "${module.vpc.public_subnet}"
   iam_instance_profile    = "${data.aws_iam_instance_profile.EC2_Terraform.name}"

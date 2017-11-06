@@ -1,10 +1,22 @@
-# octo-spoon
+# Octo Spoon - Create the AWS infrastructure for Octo environment
 
-Packer scripts with hardened and configured environment
+1. Deploy the Jenkins environment to AWS
+2. Deploy the Elastic Map Reduce environment to AWS
 
-Terraform scripts for AWS
+## Dependencies
 
-## ToDo 1. now provision on the instance the kit we need
-  1. now provision EMR
-  2. connect to s3 buckets
-  3. provision kms
+1. terraform
+2. ruby 2.4+
+
+## Install
+
+Execute the following commands to setup your environment
+
+1. git clone 
+2. cd to octo-spoon
+3. bundle install
+
+## How to
+
+From the command line list the available commands:
+rake -T
