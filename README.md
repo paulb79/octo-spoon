@@ -12,11 +12,11 @@
 
 Execute the following commands to setup your environment
 
-1. git clone 
+1. git clone git@github.com:paulb79/octo-spoon.git
 2. cd to octo-spoon
 3. bundle install
 
-## How to
+## How to use
 
 From the command line list the available commands:
 rake -T
