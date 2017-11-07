@@ -2,12 +2,16 @@ variable "aws_region" {
 	default = "eu-west-2"
 }
 
-variable "key_name" {}
+variable "key_name" {
+  default = "Jenkins"
+}
 
-variable "profile" {}
+variable "profile" {
+  default = "pbrowndev"
+}
 
 variable "project_name" {
-  default = "EMR Octo"
+  default = "Octo EMR"
 }
 
 

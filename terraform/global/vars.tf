@@ -15,7 +15,7 @@ output "aws_region" {
 }
 
 variable "project_name" {
-  default = "Octo-jenkins"
+  default = "Octo Jenkins"
 }
 
 output "project_name" {
