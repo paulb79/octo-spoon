@@ -1,0 +1,19 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Stmt1507207700000",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetUser",
+                "iam:CreateRole",
+                "iam:GetInstanceProfile",
+                "iam:GetRole",
+                "iam:PassRole"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}

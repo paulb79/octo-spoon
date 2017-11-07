@@ -8,6 +8,10 @@ module "global" {
   source = "../../global"
 }
 
+module "roles" {
+  source = "../../roles"
+}
+
 provider "aws" {
   region   = "${module.global.aws_region}"
   profile  = "${module.global.profile}"
@@ -36,7 +40,7 @@ resource "aws_instance" "jenkins" {
   instance_type           = "t2.large"
   key_name                = "${module.global.key_name}"
   subnet_id               = "${module.vpc.public_subnet}"
-  iam_instance_profile    = "${data.aws_iam_instance_profile.EC2_Terraform.name}"
+  iam_instance_profile    = "${module.roles.jenkins_profile_name}"
   vpc_security_group_ids  = ["${module.vpc.jenkins_sg_id}"]
 
   tags {
@@ -48,7 +52,4 @@ output "address" {
   value = "${aws_instance.jenkins.public_dns}"
 }
 
-data "aws_iam_instance_profile" "EC2_Terraform" {
-  name = "EC2_Jenkins"
-}
 
