@@ -7,7 +7,7 @@ variable "key_name" {}
 variable "profile" {}
 
 variable "project_name" {
-  default = "EMR Octo Test "
+  default = "EMR Octo"
 }
 
 
