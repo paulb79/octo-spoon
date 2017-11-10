@@ -30,7 +30,7 @@ data "aws_ami" "octo" {
     values = ["hvm"]
   }
 
-  owners = ["105761026190"] # EE
+  owners = ["105761026190", "861059892590"] # EE BDEC & HMRC BDEC Account
 }
 
 # Create a web server

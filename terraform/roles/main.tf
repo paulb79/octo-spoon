@@ -1,3 +1,17 @@
+module "global" {
+  source = "../global"
+}
+
+provider "aws" {
+  region   = "${module.global.aws_region}"
+  profile  = "${module.global.profile}"
+}
+
+module "policies" {
+  source = "../policies"
+}
+
+
 data "aws_iam_policy_document" "instance-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -22,9 +36,6 @@ resource "aws_iam_instance_profile" "jenkins_profile" {
 }
 
 
-module "policies" {
-  source = "../policies"
-}
 
 
 resource "aws_iam_role_policy_attachment" "attach_ec2_create_tags_policy" {
