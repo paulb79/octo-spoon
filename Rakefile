@@ -17,6 +17,7 @@ task :destroy_emr do
 desc 'Deploy infrastructure using Terraform'
 task :create_jenkins do 
   sh 'cd terraform/mgmt/services && \
+      terraform init && \
       terraform apply'
   end
 
