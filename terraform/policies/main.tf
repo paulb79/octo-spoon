@@ -44,3 +44,10 @@ resource "aws_iam_policy" "s3_coderepo_access" {
   description = "Access S3 code repository bucket"
   policy =  "${file("${path.module}/s3_coderepo_access.json")}"
 }
+
+
+resource "aws_iam_policy" "codecommit_read" {
+  name = "codecommit_read"
+  description = "Read only access to codecommit"
+  policy =  "${file("${path.module}/codecommit_read.json")}"
+}

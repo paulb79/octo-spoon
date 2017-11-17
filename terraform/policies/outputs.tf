@@ -21,3 +21,7 @@ output "s3_coderepo_access" {
 output "sg_management" {
   value = "${aws_iam_policy.sg_management.arn}"
 }
+
+output "codecommit_read" {
+  value = "${aws_iam_policy.codecommit_read.arn}"
+}

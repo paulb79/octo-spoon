@@ -68,3 +68,9 @@ resource "aws_iam_role_policy_attachment" "attach_sg_manaagement_policy" {
   policy_arn = "${module.policies.sg_management}"
 }
 
+
+resource "aws_iam_role_policy_attachment" "attach_codecommit_read_policy" {
+  role       = "${aws_iam_role.jenkins.name}"
+  policy_arn = "${module.policies.codecommit_read}"
+}
+
